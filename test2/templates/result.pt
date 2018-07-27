@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+	xmlns:tal="http://xml.zope.org/namespaces/tal" 
+	xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<title>GUILDify: Web server for phenotypic characterization of genes </title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<meta http-equiv='Content-Language' content='en_US' />
+<meta http-equiv='Content-Script-Type' content='text/javascript' />
+<meta http-equiv='Content-Style-Type' content='text/css' />
+<meta name='keywords' content='Structural Bioinformatics GRIB IMIM UPF Biomedical Informatics' />
+<meta name='description' content='Structural Bioinformatics Group in GRIB (Research Group on Biomedical Informatics' />
+<meta name='author' content='Emre Guney' />
+<meta name='Robots' content='index,follow' />
+<meta http-equiv='imagetoolbar' content='no' /><!-- disable IE's image toolbar -->
+<link rel="stylesheet" href="${request.static_url('test2:static/style.css')}" type="text/css" media="screen" charset="utf-8" />
+
+<!-- JSON support for IE (needed to use JS API) -->
+<script type="text/javascript" src="${request.static_url('test2:static/json2.min.js')}"></script>
+<!-- Flash embedding utility (needed to embed Cytoscape Web) -->
+<script type="text/javascript" src="${request.static_url('test2:static/AC_OETags.min.js')}"></script>
+<!-- Cytoscape Web JS API (needed to reference org.cytoscapeweb.Visualization) -->
+<script type="text/javascript" src="${request.static_url('test2:static/cytoscapeweb.min.js')}"></script>
+
+<script type="text/javascript">
+    // Ajax
+    function createRequestObject() {
+	var tmpXmlHttpObject;
+	if (window.XMLHttpRequest) { 
+	    // Mozilla, Safari ..
+	    tmpXmlHttpObject = new XMLHttpRequest();
+	    
+	} else if (window.ActiveXObject) { 
+	    // IE 
+	    tmpXmlHttpObject = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	return tmpXmlHttpObject;
+    }
+
+    // Create the XMLHttpRequest object
+    var http = createRequestObject();
+
+    // Send GET request from server for data
+    function makeGetRequest(parameters) {
+	if(parameters["n_start"] < 1 || parameters["n_end"]>parameters["n_node"]) {
+	    return;
+	}
+	http.open('get', "${request.application_url}/result_ajax/" + parameters["session_id"] + '/' + parameters["n_start"] + '/' + parameters["n_end"]);
+	// Handler for the response
+	http.onreadystatechange = processResponse;
+	// Send the request to the server
+	http.send(null);
+    }
+
+    function processResponse() {
+	// The response has been received from the server
+	if(http.readyState == 4){
+	    var response = eval("("+http.responseText+")");
+	    var values = response["values"];
+	    var text = "";
+	    text += '<table id="user_entity_set"> <tr> <th title="Rank from the top">Rank</th> <th title="Entrez gene identifier">Gene ID</th> <th title="UniProt accession number (KEGG id is shown instead, if no associated UniProt id is found)">UniProt ID</th> <th title="Gene symbol">Gene Symbol</th> <th title="Score calculated for the relevance of this entriy with respect to the provided seeds"> GUILD Score</th> </tr>'; 
+	    for(var i=0; i<values.length; i++) {
+		text += '<tr>';
+		var inner_text = "oddy";
+		if(i%2 == 0) {
+		    inner_text = "eveny";
+		}
+		var inner_values = values[i].split(";");
+		for(var j=0; j<inner_values.length; j++) {
+		    text += '<td class="' + inner_text + '"> <p>' + inner_values[j] + '</p></td>';
+		}
+		text += '</tr>';
+	    }
+	    text += '</table>';
+	    // Assign the response to the contents of the div/span on the page
+	    document.getElementById('result_table').innerHTML = text;
+	    document.getElementById('n_start').innerHTML = response["n_start"];
+	    document.getElementById('n_end').innerHTML = response["n_end"];
+	    // No error handling done 
+	}
+    }
+</script>
+
+<!-- JQUERY  -->
+<script type="text/javascript" src="${request.static_url('test2:static/jquery-2.0.3.min.js')}"></script>
+
+<!-- Cytoscape web visualization of top scoring subnetwork -->
+<script type="text/javascript">
+$(function(){
+
+    $("#content").html('\
+        <div id="cytoscapeweb">\
+            Cytoscape web content\
+        </div>\
+	<div id="cytoscapeweb_note">\
+	    <center>(Select any node for details)</center>\
+	</div>\
+    ');
+
+	// id of Cytoscape Web container div
+	var div_id = "cytoscapeweb";
+	
+	// you could also use other formats (e.g. GraphML) or grab the network data via AJAX
+	var network_json = ${network_json};
+	
+	// initialization options
+	var options = {
+	    // where you have the Cytoscape Web SWF
+	    swfPath: "${request.static_url('test2:static/CytoscapeWeb')}",
+	    // where you have the Flash installer SWF
+	    flashInstallerPath: "${request.static_url('test2:static/playerProductInstall')}"
+	};
+
+	// visual style 
+	var visual_style = {
+	    global: {
+		backgroundColor: "#E7F0F0"
+	    },
+	    nodes: {
+		shape: {
+		    discreteMapper: {
+			attrName: "type",
+			entries: [
+			    { attrValue: "seed", value: "OCTAGON" },
+			    { attrValue: "non_seed", value: "OCTAGON" },
+			    { attrValue: "drug", value: "DIAMOND" }
+			]
+		    } 
+		} ,
+		borderWidth: 3,
+		borderColor: "#ffffff",
+		size: {
+		    defaultValue: 25,
+		    continuousMapper: { attrName: "score", minValue: 25, maxValue: 100 }
+		},
+		color: {
+		    discreteMapper: {
+			attrName: "type",
+			entries: [
+			    { attrValue: "seed", value: "#F0A548" },
+			    { attrValue: "non_seed", value: "#BDDDB0" },
+			    { attrValue: "drug", value: "#5093FF" }
+			]
+		    }
+		},
+		labelHorizontalAnchor: "center",
+		labelFontSize: 14,
+		labelFontWeight: "bold"
+	    },
+	    edges: {
+		width: 3,
+		color: "#0B94B1"
+	    }
+	};
+	
+	// init and draw
+	var vis = new org.cytoscapeweb.Visualization(div_id, options);
+
+	// callback when Cytoscape Web has finished drawing
+	vis.ready(function() {
+	    // add a listener for when background is clicked
+	    vis.addListener("click", "none", function(event) {
+	    	handle_click(event);
+	    });
+	    // listener for when nodes are selected
+	    vis.addListener("select", "nodes", function(event) {
+	    	handle_select(event);
+	    });
+
+	    function handle_select(event) {
+                var nodes = vis.selected("nodes"); //event.target;
+                clear();
+		print(nodes);
+            }
+	    
+	    function handle_click(event) {
+		clear();
+	    }
+
+	    function clear() {
+		document.getElementById("cytoscapeweb_note").innerHTML = "<center>(Select any node for details)</center>";
+	    }
+
+	    function print(nodes) {
+                var fields = new Array("xref", "label", "score", "rank", "type");
+		var n_max = 50;
+                var text = ""
+                if(nodes.length == 1) {
+                    text += "Selected node:";
+                } else if(nodes.length > n_max) {
+		    text += "Selected " + nodes.length + " nodes (only the top ranking " + n_max + " are displayed below):";
+                } else {
+                    text += "Selected " + nodes.length + " nodes:";
+                }
+                text += "<center>";
+		text += '<table id="cytoscapeweb_user_entity_set"> <tr> <th title="Identifier (UniProt or DrugBank Id)">ID</th> <th title="Gene symbol / drug name">Label</th> <th title="Score calculated for the relevance of this entriy with respect to the provided seeds"> GUILD Score</th> <th title="Rank from the top">Rank</th> <th title="Seed or non-seed"> Type </tr>';
+		nodes.sort(function(a,b){return b.data["score"]-a.data["score"];})
+                for (var i=0; i < nodes.length; i++) {
+		    if(i>=n_max) {
+		    	break;
+		    }
+                    //document.getElementById("cytoscapeweb_note").innerHTML += '<tr>' + nodes[i].data["label"] + '</tr>'; 
+                    var inner_text="oddy";
+                    if(i%2 == 0) {
+                        inner_text="eveny";
+                    }
+                    text += '<tr>'; 
+		    for (var k=0; k < fields.length; k++) {  
+			var inner_text2 = ""
+			if (fields[k] == "xref" && nodes[i].data["type"] != "drug") {
+			    var values = nodes[i].data[fields[k]].split(";");
+			    for(j=0; j<values.length; j++) {
+				inner_text2 = "<a href='http://www.uniprot.org/uniprot/" + values[j] + "'>" + values[j] + "</a>";
+			    }
+			} else if(fields[k] == "xref" && nodes[i].data["type"] == "drug") {
+			    inner_text2 = "<a href='http://www.drugbank.ca/drugs/" + nodes[i].data[fields[k]] + "'>" + nodes[i].data[fields[k]] + "</a>";
+			} else {
+			    inner_text2 = nodes[i].data[fields[k]]
+			}
+			text += '<td class="' + inner_text + '"> <p> ' + inner_text2 + '</p> </td>';
+		    }
+		    text += '</tr>'; 
+		}
+		text += '</table>'; 
+		text += "</center>";
+		document.getElementById("cytoscapeweb_note").innerHTML = text;
+		}
+	});
+
+	function toggleFilter(val) {
+	    if(val) {
+		vis.removeFilter("nodes", true);
+	    } else {
+		vis.filter("nodes", function(node) { return node.data["type"] != "drug"; }, true);
+	    }
+	}    
+
+    $("#filter").change(function(evt) {
+        toggleFilter($("#filter").is(":checked"));
+    });
+
+    vis.draw({ network: network_json, visualStyle: visual_style });
+        
+});
+</script>
+
+</head>
+
+<body>
+
+    <div class="content">
+	<div class="preheader">
+	    <br />
+	    <div class="padding">
+		<br />
+	    </div>
+	</div>
+
+	    <div id="nav">
+		<ul>
+		<li><a class="selected" href="${request.application_url}">Home</a></li>
+		<li><a href="${request.application_url}/doc">Documentation</a></li>
+		<li><a href="${request.application_url}/../GUILD.php">GUILD</a></li>
+		<li><a href="${request.application_url}/../BIANA.php">BIANA</a></li>
+		<li><a href="http://sbi.imim.es">SBI Group</a></li>
+		</ul>
+	    </div>
+
+	<div class="header"> 
+	    <br/>
+	    <div class="title"> GUILDify Web Server - Results </div> 
+	</div>
+
+	    <div id="main_content" class="main_content">
+
+		<div class="sd_left2">
+
+		    <div class="text_padding">
+
+			Calculated scores for proteins in the BIANA <b><i>${species}</i></b> interactome: 
+			<br/>
+			[ <a href="${request.application_url}/data/${output_file_url}"> Download all scores </a> ] 
+			&nbsp; 
+			[ <a href="${request.application_url}/data/${seed_file_url}" > Download seed proteins </a> ]
+			&nbsp; 
+			[ <a href="${request.application_url}/data/${network_file_url}" > Download interactome </a> ]
+
+			<br />
+			<br />
+
+			<!-- <center> -->
+			<div class="right-shifted">
+
+			Proteins <b> <span id="n_start">${n_start}</span> </b> - <b> <span id="n_end">${n_end}</span> </b> of <span id="n_node">${n_node}</span>
+			&nbsp; &nbsp;
+			<a href='javascript:makeGetRequest({ "session_id": "${session_id}", "n_start": 1, "n_end": 20, "n_node": parseInt(document.getElementById("n_node").innerHTML) })' title="First"> ||&lt;&lt; </a>
+			&nbsp; &nbsp; 
+			<a href='javascript:makeGetRequest({ "session_id": "${session_id}", "n_start": parseInt(document.getElementById("n_start").innerHTML)-20, "n_end": parseInt(document.getElementById("n_end").innerHTML)-20, "n_node": parseInt(document.getElementById("n_node").innerHTML) })' title="Previous"> &lt;&lt; </a> <!--tal:condition="n_start>20"-->
+			&nbsp; &nbsp; 
+			<a href='javascript:makeGetRequest({ "session_id": "${session_id}", "n_start": parseInt(document.getElementById("n_start").innerHTML)+20, "n_end": parseInt(document.getElementById("n_end").innerHTML)+20, "n_node": parseInt(document.getElementById("n_node").innerHTML) })' title="Next"> &gt;&gt;</a> <!--tal:condition="not_last_page"-->
+			&nbsp; &nbsp; 
+			<a href='javascript:makeGetRequest({ "session_id": "${session_id}", "n_start": parseInt(document.getElementById("n_node").innerHTML)-20, "n_end": parseInt(document.getElementById("n_node").innerHTML), "n_node": parseInt(document.getElementById("n_node").innerHTML) })' title="Last"> &gt;&gt;|| </a>
+			&nbsp; &nbsp; 
+			<br/>
+
+			<div id="result_table"> 
+			
+			<!-- 
+			&nbsp; &nbsp; 
+			<a href="${request.application_url}/result/${session_id}/1/20" title="First"> ||&lt;&lt; </a>
+			&nbsp; &nbsp; 
+			<a tal:condition="n_start>20" href="${request.application_url}/result/${session_id}/${n_start-20}/${n_end-20}" title="Previous"> &lt;&lt; </a> 
+			&nbsp; &nbsp; 
+			<a tal:condition="not_last_page" href="${request.application_url}/result/${session_id}/${n_start+20}/${n_end+20}" title="Next"> &gt;&gt;</a> 
+			&nbsp; &nbsp; 
+			<a href="${request.application_url}/result/${session_id}/${n_node-20}/${n_node}" title="Last"> &gt;&gt;|| </a>
+			&nbsp; &nbsp; 
+			<br/>
+			-->
+
+			<!-- 
+			  <fieldset>
+			  <legend>Proteins ${n_start} - ${n_end} of ${n_node} </legend> -->
+			    <table id="user_entity_set"> <!-- title="GUILDifying results yielded using selected entries"> -->
+				<tr> <th title="Rank from the top">Rank</th> <th title="Entrez gene identifier">Gene ID</th> <th title="UniProt accession number (KEGG id is shown instead, if no associated UniProt id is found)">UniProt ID</th> <th title="Gene symbol">Gene Symbol</th> <th title="Score calculated for the relevance of this entriy with respect to the provided seeds"> GUILD Score</th> </tr> <!-- <th title="Unique id describing the entry assigned by BIANA">BIANA ID</th> <th title="Description">Description</th> -->
+				<tr tal:repeat="row values">
+				    <td tal:condition="repeat.row.odd" tal:attributes="class 'oddy'" tal:repeat="col row"> 
+					<p tal:content="structure col"> </p> 
+				    </td> 
+				    <td tal:condition="repeat.row.even" tal:attributes="class 'eveny'" tal:repeat="col row"> 
+					<p tal:content="structure col"> </p> 
+				    </td> 
+				</tr>
+			    </table>
+			<!-- </fieldset> -->
+
+			</div>
+
+			<br/>
+
+		    </div>
+		    <!-- </center> -->
+
+		    </div>
+		</div>
+
+		<div class="sd_right2">
+	    
+		    <div class="text_padding">
+
+			Highest scoring subnetwork 
+			<br/>
+			Visualization options:
+			<span tal:condition="top1"> <label> <input type="radio" name="group1" onClick="window.location='${request.application_url}/result/${session_id}/'+document.getElementById('n_start').innerHTML+'/'+document.getElementById('n_end').innerHTML+'/1';" checked/> Top 1% </label> &nbsp; &nbsp; </span>
+			<span tal:condition="not: top1"> <label> <input type="radio" name="group1" onClick="window.location='${request.application_url}/result/${session_id}/'+document.getElementById('n_start').innerHTML+'/'+document.getElementById('n_end').innerHTML+'/1';"/> Top 1% </label> &nbsp; &nbsp; </span> 
+			<span tal:condition="top5"> <label> <input type="radio" name="group1" onClick="window.location='${request.application_url}/result/${session_id}/'+document.getElementById('n_start').innerHTML+'/'+document.getElementById('n_end').innerHTML+'/5';" checked/> Top 5% </label> &nbsp; &nbsp; </span>
+			<span tal:condition="not: top5"> <label> <input type="radio" name="group1" onClick="window.location='${request.application_url}/result/${session_id}/'+document.getElementById('n_start').innerHTML+'/'+document.getElementById('n_end').innerHTML+'/5';"/> Top 5% </label> &nbsp; &nbsp; </span>
+			<!-- 
+			<span tal:condition="top10"> <label> <input type="radio" name="group1" onClick="window.location='${request.application_url}/result/${session_id}/'+document.getElementById('n_start').innerHTML+'/'+document.getElementById('n_end').innerHTML+'/10';" checked/> Top 10% </label> &nbsp; &nbsp; </span>
+			<span tal:condition="not: top10"> <label> <input type="radio" name="group1" onClick="window.location='${request.application_url}/result/${session_id}/'+document.getElementById('n_start').innerHTML+'/'+document.getElementById('n_end').innerHTML+'/10';"/> Top 10% </label> &nbsp; &nbsp; </span>
+			<label> <input type="radio" name="group1" value="100"/> All </label> &nbsp;
+			<br/>
+			<label> <input type="checkbox" name="include" value="include" checked/> Drug-target relationships </label> 
+			-->
+			<span tal:condition="human"> <label><input id='filter' type='checkbox' checked> | Include drugs </input> &nbsp; &nbsp; </span>
+			<br/>
+			<center>
+			[ <a href="${request.application_url}/data/${subnetwork_file_url}"> Download subnetwork </a> ]
+			<span tal:condition="human"> &nbsp; &nbsp; [ <a href="${request.application_url}/data/${drug_file_url}"> Download drug info </a> ] </span>
+			<span tal:condition="not: human"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>
+			</center>
+			<br/>
+			<br/>
+
+			<div id="content">
+			    Cytoscape web 
+			</div>
+ 
+		    </div>
+		</div>
+
+		<!-- <div class="bottom-shifted">
+		</div> -->
+
+		<!-- <div class="footer">
+		    <div class="padding"> 
+			<br />Powered by <a href="http://pylonsproject.org/"> Pyramid </a> and <a href="http://cytoscapeweb.cytoscape.org"> CytoscapeWeb </a></div>
+		</div> -->
+	    </div>
+	</div>
+
+</body>
+</html>
+
+

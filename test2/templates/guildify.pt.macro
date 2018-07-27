@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+	xmlns:tal="http://xml.zope.org/namespaces/tal" 
+	xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+| LightNEasy Content Management System
+| Copyright 2007-2008 Fernando Baptista
+| http://lightneasy.org
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| no database version 2.2
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| Released under the terms & conditions of v2 of the
+| GNU General Public License. For details refer to
+| the included gpl.txt file or visit http://gnu.org
++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<title>GUILDIFY: GUILD Web server (Genes Underlying Inheritance Linked Disorders)</title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<meta http-equiv='Content-Language' content='en_US' />
+<meta http-equiv='Content-Script-Type' content='text/javascript' />
+<meta http-equiv='Content-Style-Type' content='text/css' />
+<meta name='keywords' content='Structural Bioinformatics GRIB IMIM UPF Biomedical Informatics' />
+<meta name='description' content='Structural Bioinformatics Group in GRIB (Research Group on Biomedical Informatics' />
+<meta name='author' content='Emre Guney' />
+<meta name='Robots' content='index,follow' />
+<meta http-equiv='imagetoolbar' content='no' /><!-- disable IE's image toolbar -->
+<link rel="stylesheet" href="${request.static_url('test2:static/style.css')}" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="${request.static_url('test2:static/lightneasy.css')}" type="text/css" media="screen" charset="utf-8" />
+</head>
+
+<body>
+    <div class="content">
+	<div class="preheader">
+	    <br />
+	    <div class="padding">
+		<br />
+	    </div>
+	</div>
+	<div class="header">
+	    <div class="title"><a href="./">Structural Bioinformatics Laboratory</a></div>
+		<div class="slogan">in Research Group on Biomedical Informatics (GRIB)</div>
+	    </div>
+
+	    <div id="nav">
+		<ul>
+		<li><a class="selected" href="index.php">Home</a></li>
+		<li><a href="research.php">Research</a></li>
+		<li><a href="members.php">Members</a></li>
+		<li><a href="courses.php">Courses</a></li>
+		<li><a href="contact.php">Contact</a></li>
+		<li><a href="http://sbi.imim.es/wiki">Group Wiki</a></li>
+		<li><a href="http://sbi.imim.es/web/cat/index.php">Catala</a></li>
+		</ul>
+	    </div>
+
+	    <div id="main_content" class="main_content">
+<!--
+		<div class="sd_right">
+		    <div class="text_padding">
+			<h2>Test2</h2>
+			    <ul>
+			    <li class="LNE_menu"><a class="selected" href="index.php">Home</a></li>
+			    <li class="LNE_menu"><a href="research.php">Research</a></li>
+			    <li class="LNE_menu"><a href="members.php">Members</a></li>
+
+			    <li class="LNE_menu"><a href="courses.php">Courses</a></li>
+			    <li class="LNE_menu"><a href="contact.php">Contact</a></li>
+			    <li class="LNE_menu"><a href="http://sbi.imim.es/wiki">Group Wiki</a></li>
+			    <li class="LNE_menu"><a href="http://sbi.imim.es/web/cat/index.php">Catala</a></li>
+			    </ul>
+
+		    </div>
+		</div>
+-->
+		    
+		<div class="sd_left">
+
+		    <div class="text_padding"><h1>GUILD Web Server</h1>
+
+			<br />
+
+			<!--
+			<span metal:define-macro="content">
+			    <p metal:define-slot="specific-content"> Specific content goes here </p>
+			</span>
+			-->
+
+			    
+			<br />
+			<br />
+
+			<form action="." method="POST">
+			    <table>
+			    <tr>
+				<td>
+				    <label for="keyword">Keyword(s)</label>
+				</td>
+				<td>
+				    <input type="text" name="keywords" value="$#{keywords}" />
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			    </tr>
+			    <tr>
+				<td>
+				  <label for="species">Species</label>
+				</td>
+				<td>
+				    <select name="species">
+					<option value="" selected="selected"> Homo Sapiens </option>
+					<!--<option tal:repeat="lexer lexers" value="$#{lexer.alias}" >$#{lexer.name}</option> -->
+				    </select>
+				</td>
+				<td>
+				</td>
+				<td>
+				    <!--
+				    <br/>
+				    <input type="submit" />
+				    -->
+				</td>
+			    </tr>
+			    <tr>
+				<td>
+				  <label for="scoring_method">Scoring Method</label>
+				</td>
+				<td>
+				    <select name="scoring_method">
+					<option value="ns" selected="selected"> NetScore </option>
+					<option value="nz"> NetZcore </option>
+					<option value="nd"> NetShort </option>
+					<option value="nr"> NetRank </option>
+					<option value="ff"> Func. Flow </option>
+				    </select>
+				</td>
+				<td>
+				    &nbsp; &nbsp;
+				</td>
+				<td>
+				    <input type="submit" />
+				</td>
+			    </tr>
+
+			    </table>
+			</form>
+
+			<br />
+			<br />
+
+
+
+			<br />
+
+			<p style="text-align: justify;">
+			    Use network-topology based relevance scoring algorithms in <a href="GUILD.php"> GUILD </a> to score relevance of gene products associated with given keywords. First, <a href="BIANA.php"> BIANA </a> database is queried for gene products associated with the keywords. Next, these gene products are fed to a species-specific interaction network from BIANA as seed proteins. Finally a score of relevance for each gene product is calculated by the selected scoring algorithm. See <a href="GUILD.php"> GUILD web page </a> for details.
+			</p>
+
+			<br/>
+
+			  <fieldset>
+			    <legend>Result Summary</legend>
+			  </fieldset>
+
+		    </div>
+		</div>
+
+		<div class="footer">
+		    <div class="padding"> <!-- Original design: <a href="http://www.free-css-templates.com/" title="Free CSS Templates">David Herreman</a> -->
+			<br />Powered by <a href="http://lightneasy.org">LightNEasy 2.2</a> and <a href="http://pylonsproject.org/"> Pyramid </a> </div>
+		</div>
+	    </div>
+	</div>
+</body>
+</html>
+
+

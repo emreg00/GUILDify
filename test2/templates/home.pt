@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+	xmlns:tal="http://xml.zope.org/namespaces/tal" 
+	xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<title>GUILDify: Web server for phenotypic characterization of genes </title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<meta http-equiv='Content-Language' content='en_US' />
+<meta http-equiv='Content-Script-Type' content='text/javascript' />
+<meta http-equiv='Content-Style-Type' content='text/css' />
+<meta name='keywords' content='Structural Bioinformatics GRIB IMIM UPF Biomedical Informatics' />
+<meta name='description' content='Structural Bioinformatics Group in GRIB (Research Group on Biomedical Informatics' />
+<meta name='author' content='Emre Guney' />
+<meta name='Robots' content='index,follow' />
+<meta http-equiv='imagetoolbar' content='no' /><!-- disable IE's image toolbar -->
+<link rel="stylesheet" href="${request.static_url('test2:static/style.css')}" type="text/css" media="screen" charset="utf-8" />
+<!--<link rel="stylesheet" href="${request.static_url('test2:static/lightneasy.css')}" type="text/css" media="screen" charset="utf-8" />-->
+</head>
+
+<body>
+
+    <div class="content">
+
+	<div class="header"> 
+	</div>
+
+	<div class="preheader">
+	    <br />
+	    <div class="padding">
+		<br />
+	    </div>
+	</div>
+
+	    <div id="nav">
+		<ul>
+		<li><a class="selected" href="${request.application_url}">Home</a></li>
+		<li><a href="${request.application_url}/doc">Documentation</a></li>
+		<li><a href="${request.application_url}/../GUILD.php">GUILD</a></li>
+		<li><a href="${request.application_url}/../BIANA.php">BIANA</a></li>
+		<li><a href="http://sbi.imim.es">SBI Group</a></li>
+		</ul>
+	    </div>
+
+	<div class="header"> 
+	    <br/>
+	    <div class="title"> GUILDify Web Server </div> 
+	</div>
+
+	    <div id="main_content" class="main_content">
+		    
+		<div class="sd_left">
+
+		    <div class="text_padding">
+
+			<br />
+			<br />
+
+			<center>
+
+			    <form action="${request.application_url}/query" method="POST">
+				<table cellpadding=0 cellspacing=0>
+				    <tr valign=top>
+				    <td width=25%> &nbsp;</td>
+				    <td align=center nowrap>
+					<div >
+					<input autocomplete=off maxlength=8192 id="keywords" name="keywords" title="Free text search" value="" size=40 >
+					</div>
+					<input type="submit" value="Search in BIANA Knowledge base" title="Search for entries matching with the text provided in BIANA Knowledge base" onClick="document.getElementById('wait').style.display='block'"/>
+				    </td>
+				    <td nowrap width=25% align=left>
+				      <select id="species" name="species" title="Choose species">
+					  <option tal:repeat="species species_list" tal:attributes="value species_to_value[species]" tal:content="species" style="font-style:italic"> Homo sapiens </option>
+				      </select>
+				    </td>
+				    </tr>
+				</table>
+			    </form>
+
+			    <br />
+
+			    Try it with the following examples: [ <a href="#" onClick="document.getElementById('keywords').value='alzheimer'; document.getElementById('species').value='9606'"> Keyword </a> ] [ <a href="#" onClick='document.getElementById("keywords").value="\"alzheimer diabetes\""; document.getElementById("species").value="9606"'> Keywords (AND) </a> ] [ <a href="#" onClick="document.getElementById('keywords').value='alzheimer diabetes'; document.getElementById('species').value='9606'"> Keywords (OR) </a> ] [ <a href="#" onClick="document.getElementById('keywords').value='TP53; BRCA1; BRCA2'; document.getElementById('species').value='10090'"> Genes </a> ]
+
+			    <div tal:condition="request.session.peek_flash()" tal:repeat="message request.session.pop_flash()"> 
+				<br/>
+				<p style="background:#8ff; border:1px solid #ccc; color:#888" tal:content="message"> </p>
+			    </div>
+
+			    <br/>
+			    <!-- <div id="wait" style="display: none"> <img src="${request.static_url('test2:static/progress.gif')}"> <br/> Your query is being processed, please hang on! </div> -->
+			    <div id="wait" style="display: none"> <img src="${request.static_url('test2:static/progress.gif')}">  </div>
+
+			</center>
+			    
+			<br/>
+
+			<p style="text-align: justify;">
+			    <i> GUILDify </i> uses network-topology based prioritization algorithms in <a href="http://sbi.imim.es/GUILD.php"> GUILD </a> to score relevance of gene products with respect to given keywords. First, <a href="http://sbi.imim.es/BIANA.php"> BIANA </a> knowledge base containing data integrated from publicly available major data repositories is queried for gene products associated with the keywords. Next, these gene products are fed to a species-specific interaction network (created using BIANA) as seed proteins. Finally, a score of relevance for each gene product in the network is calculated by the prioritization algorithm. See <a href="${request.application_url}/doc"> documentation page </a> for details.
+			</p>
+
+			<br/>
+			<b> <i> Querying tips </i> </b>
+			 <dl>
+			     <dt><i>- Grouping keywords using quotations</i></dt>
+			     <dd>When the keywords are quoted together, GUILDify will only match entries that contain the quoted keywords together in their description. 
+				 For instance,  "Alzheimer disease" (with quotation) will retrieve entries containing "alzheimer" AND "disease", whereas Alzheimer disease (without quotation) will retrieve entries containing "alzheimer" OR "disease". </dd>
+			     <dt><i>- User-specified genes using semicolons</i></dt>
+			     <dd>If the query contains ";", it will be considered as a list of genes separated by semicolons (e.g., TP53; BRCA1; BRCA2).</dd>
+			 </dl>
+			<br/>
+			<b> <i> Retrieve results </i> </b>
+			<form action="${request.application_url}/retrieve" method="POST">
+			Enter Job Id: <input autocomplete=off maxlength=36 id="session_id" name="session_id" title="Enter 36 character long job id string" value="" size=20 >
+			<input type="submit" value="Retrieve" title="Retrieve results using job id"/>
+			</form>
+
+			<br/>
+			<b> <i> Overlap between two results </i> </b>
+			<form action="${request.application_url}/retrieve" method="POST">
+			Job Id 1: <input autocomplete=off maxlength=36 id="session_id1" name="session_id1" title="Enter 36 character long job id string" value="" size=20 > &nbsp;
+			Job Id 2: <input autocomplete=off maxlength=36 id="session_id2" name="session_id2" title="Enter 36 character long job id string" value="" size=20 >
+			<input type="submit" value="Check overlap" title="Check overlap between two results using job ids"/>
+			</form>
+
+			<br/>
+			<b> <i> Demo </i> </b>
+			<p>
+			    Click <a href="${request.application_url}/result/demo/1/20/1"> here </a> for a sneak peek of <i> GUILDify </i> result page. This page is produced running a combination of NetScore (# of iterations: 2, # of repetitions: 3), NetZcore (# of iterations: 5) and NetShort algorithms with all seeds retrieved using "alzheimer" as the keyword.
+			</p>
+			<br/>
+
+			<p>
+			    Click <a href="${request.application_url}/result_overlap/demo/breast/1/20/1"> here </a> for an example of the new genetic overlap between two results. The example shows the common top scoring proteins from the prioritizations using "alzheimer" and "breast cancer" keywords.
+			</p>
+			<br/>
+
+			<b> <i> Release info </i> </b>
+			<p>
+			    Current version of <i> GUILDify </i> uses <a href="http://sbi.imim.es/BIANA.php"> BIANA </a> integrated database release from <i> March 2013 </i> (includes UniProt, GO, OMIM, Drugbank, HPRD, IntAct, DIP, BioGrid, MPACT and Reactome databases). Please contact <a href="mailto:emre.guney{-at-}upf.edu?Subject=GUILDify%20June%202011%20release"> us </a> in case you need to access data from the previous release (from <i> June 2011 </i>).
+			<!--
+			<blink> <font color="red"> Important! </font> </blink> 
+			The web server is currently under maintenance, which may cause the jobs not to finish, use it at your own risk. 
+			-->
+
+			</p>
+			<br/>
+
+			<TABLE STYLE="margin: 0px auto;">
+			<TR><TH>Database Name</TH><TH>Database Version</TH></TR>
+			<TR><TD class="oddy">SWISSPROT</TD><TD class="oddy">Mar 2013</TD></TR>
+			<TR><TD class="eveny">TREMBL</TD><TD class="eveny">Mar 2013</TD></TR>
+			<TR><TD class="oddy">OMIM</TD><TD class="oddy">Jul 2013</TD></TR>
+			<TR><TD class="eveny">GO</TD><TD class="eveny">Jun 2013</TD></TR>
+			<TR><TD class="oddy">DRUGBANK</TD><TD class="oddy">Jul 2013</TD></TR>
+			<TR><TD class="eveny">BIOGRID</TD><TD class="eveny">Jan 2013</TD></TR>
+			<TR><TD class="oddy">DIP</TD><TD class="oddy">Jan 2013</TD></TR>
+			<TR><TD class="eveny">HPRD</TD><TD class="eveny">Apr 2010</TD></TR>
+			<TR><TD class="oddy">INTACT</TD><TD class="oddy">Jan 2013</TD></TR>
+			<TR><TD class="eveny">MINT</TD><TD class="eveny">Dec 2011</TD></TR>
+			<TR><TD class="oddy">MPACT</TD><TD class="oddy">Oct 2008</TD></TR>
+			<TR><TD class="eveny">REACTOME</TD><TD class="eveny">Dec 2012</TD></TR>
+			<!-- <TR><TD class="oddy">STRING</TD><TD class="oddy">v9</TD></TR> -->
+			<!-- <TR><TD class="eveny">PSI_MI_OBO</TD><TD class="eveny">feb13</TD></TR>-->
+			</TABLE>
+
+			<br/>
+
+		    </div>
+		</div>
+
+		<div class="footer">
+		    <div class="padding"> <br />Powered by <a href="http://pylonsproject.org/"> Pyramid </a> </div>
+		</div>
+	    </div>
+	</div>
+
+</body>
+</html>
+
+

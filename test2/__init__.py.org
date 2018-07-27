@@ -1,0 +1,25 @@
+from pyramid.config import Configurator
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
+
+def main(global_config, **settings):
+    """ This function returns a Pyramid WSGI application.
+    """
+    session_factory = UnencryptedCookieSessionFactoryConfig('ent85an')
+    config = Configurator(settings=settings, session_factory=session_factory)
+    config.add_static_view('static', 'test2:static')
+    config.add_route('home', '/', view='test2.views.home_view',
+                     view_renderer='templates/home.pt')
+    config.add_route('data', 'data/{session_id}/{file_name}', view='test2.views.file_view')
+    config.add_route('data_network', 'data/{species}', view='test2.views.file_view')
+    config.add_route('query', 'query', view='test2.views.query_result_view',
+                     view_renderer='templates/query.pt')
+    config.add_route('status', 'status', view='test2.views.run_scoring_method_view',
+                     view_renderer='templates/status.pt')
+    config.add_route('retrieve', 'retrieve', view='test2.views.retrieve_results_view')
+    config.add_route('result', 'result/{session_id}/{n_start}/{n_end}/{p_top}', view='test2.views.scoring_results_view',
+                     view_renderer='templates/result.pt')
+    config.add_route('result_ajax', 'result_ajax/{session_id}/{n_start}/{n_end}', view='test2.views.results_ajax', view_renderer='json') 
+    config.add_route('doc', 'doc', view='test2.views.doc_view',
+                     view_renderer='templates/doc.pt')
+    return config.make_wsgi_app()
+

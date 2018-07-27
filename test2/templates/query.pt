@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+	xmlns:tal="http://xml.zope.org/namespaces/tal" 
+	xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+
+<title>GUILDify: Web server for phenotypic characterization of genes </title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<meta http-equiv='Content-Language' content='en_US' />
+<meta http-equiv='Content-Script-Type' content='text/javascript' />
+<meta http-equiv='Content-Style-Type' content='text/css' />
+<meta name='keywords' content='Structural Bioinformatics GRIB IMIM UPF Biomedical Informatics' />
+<meta name='description' content='Structural Bioinformatics Group in GRIB (Research Group on Biomedical Informatics' />
+<meta name='author' content='Emre Guney' />
+<meta name='Robots' content='index,follow' />
+<meta http-equiv='imagetoolbar' content='no' /><!-- disable IE's image toolbar -->
+<link rel="stylesheet" href="${request.static_url('test2:static/style.css')}" type="text/css" media="screen" charset="utf-8" />
+<script style="text/javascript">
+    function checkOptions(ueids)
+    {
+	var countScoring = 0
+	var scoring = ["netscore", "netzcore", "netshort"]
+	for(var i in scoring) {
+	    var cb = document.getElementsByName(scoring[i])[0];
+	    if(cb.checked) {
+		countScoring++;
+	    }
+	}
+	//ueid_list = document.getElementsByName('user_entity_ids_in_network')[0].value
+	//var ueids = ueid_list.split(",");
+	var countEntry = 0
+	for(var i in ueids) {
+	    //var ueid = ueids[i].replace(/[\s\['\]]/g, "");
+	    var ueid = ueids[i]
+	    var cb = document.getElementsByName(ueid)[0];
+	    if(cb.checked) {
+		countEntry++;
+	    }
+	}
+	if(countScoring < 1 || countEntry < 1) {
+	    document.getElementById("messageField").innerHTML='<br/> <span class="error"> Please make sure that at least one method and entry (protein) have been choosen! </span>';
+	    return false;
+	} 
+    }
+    function toggleAll(ueids, state)
+    {
+	//ueid_list = document.getElementsByName('user_entity_ids_in_network')[0].value
+	//var ueids = ueid_list.split(",");
+	for(var i in ueids) {
+	    //var ueid = ueids[i].replace(/[\s\['\]]/g, "");
+	    var ueid = ueids[i]
+	    var cb = document.getElementsByName(ueid)[0];
+	    cb.checked = state;
+	}
+    }
+</script>
+</head>
+
+<body>
+
+    <div class="content">
+	<div class="preheader">
+	    <br />
+	    <div class="padding">
+		<br />
+	    </div>
+	</div>
+	    <div id="nav">
+		<ul>
+		<li><a class="selected" href="${request.application_url}">Home</a></li>
+		<li><a href="${request.application_url}/doc">Documentation</a></li>
+		<li><a href="${request.application_url}/../GUILD.php">GUILD</a></li>
+		<li><a href="${request.application_url}/../BIANA.php">BIANA</a></li>
+		<li><a href="http://sbi.imim.es">SBI Group</a></li>
+		</ul>
+	    </div>
+
+	<div class="header"> 
+	    <br/>
+	    <div class="title"> GUILDify Web Server - Matching Proteins </div> 
+	</div>
+
+	    <div id="main_content" class="main_content">
+		    
+		<div class="sd_left">
+
+		    <div class="text_padding">
+
+			<br />
+
+			<center>
+
+			    <b>${n_node}</b> BIANA entries are found for the query <b><i>${keywords}</i></b> in <i>${species}</i>. ${n_node_not_in_network} of these entries have no interactions (not in the network).
+			<br/>
+			</center>
+
+		    <!--
+			Can't see your gene below? [ <a href="#" onClick="document.getElementById('add').style.display='block'"> Upload more genes </a> ] 
+			<br>
+			<div id="add" style="display: none"> 
+
+		    <fieldset class="fieldset-auto-width">
+			<legend> Upload more genes </legend>
+                        <form action="${request.application_url}/query" method="POST">
+		    <table border=0> <tr> <td>
+                        <input type="hidden" name="keywords" tal:attributes="value keywords"/>
+                        <input type="hidden" name="species" tal:attributes="value tax_id"/>
+			<input type="hidden" name="user_entity_ids" tal:attributes="value user_entity_ids"/>
+			<input type="hidden" name="user_entity_ids_in_network" tal:attributes="value user_entity_ids_in_network"/>
+		    </td> <td> </td> </tr> <tr> <td> 
+			<textarea id="genes" name="genes" rows="4" cols="7" onFocus="if(this.value=='Enter gene symbols') this.value=''">Enter gene symbols</textarea>
+		    </td> <td> &nbsp;
+                        <input type="submit" value="Add Genes" style="font-size: 80%" title="Any entries in BIANA Knowledge base matching with the provided gene symbols is going to be added to the list below"/>
+		    </td> </tr> </table>
+
+			    <div tal:condition="request.session.peek_flash()" tal:repeat="message request.session.pop_flash()"> 
+				<br/>
+				<p style="background:#8ff; border:1px solid #ccc; color:#888" tal:content="message"> </p>
+			    </div>
+
+			</form>
+		    </fieldset>
+
+		    [ <a href="#" onClick="document.getElementById('add').style.display='none'"> Hide </a> ] 
+
+			</div>
+		    -->
+
+                        <br/>
+
+			<form action="${request.application_url}/status" onSubmit="return checkOptions(${user_entity_ids_in_network});" method="POST">
+
+			<input type="hidden" name="species" tal:attributes="value tax_id"/>
+			
+			<center>
+			<input type="submit" value="GUILDify!" title="Apply network-based scoring method using selected entries"/>
+			using selected entries below [ <a href="#" onClick="document.getElementById('options').style.display='block'"> Options </a> ] 
+
+			<div id="options" style="display: none"> 
+
+		    <fieldset class="fieldset-auto-width">
+			<legend> Options </legend>
+		    <table border=0> <tr> <td>
+			<input type="checkbox" name="netscore" value="netscore" checked/> NetScore 
+			<!-- </td> <td> &nbsp; -->
+			&nbsp; (Repetition: 
+			<select id="repetitionSelect" name="repetitionSelector" style="font-size: 80%"> 
+			    <option value="1"> 1 </option>
+			    <option value="2"> 2 </option>
+			    <option value="3" selected="seleceted"> 3 </option>
+			    <option value="4"> 4 </option>
+			    <option value="5"> 5 </option>
+			</select>		    
+			<!-- <input type="text" id="repetition" name="repetition" size="4" value="3"> -->
+			<!-- </td> <td> &nbsp; -->
+			&nbsp; Iteration: 
+			<select id="iterationSelect" name="iterationSelector" style="font-size: 80%"> 
+			    <option value="1"> 1 </option>
+			    <option value="2" selected="seleceted"> 2 </option>
+			    <option value="3"> 3 </option>
+			    <option value="4"> 4 </option>
+			    <option value="5"> 5 </option>
+			    <option value="6"> 6 </option>
+			    <option value="7"> 7 </option>
+			    <option value="8"> 8 </option>
+			</select>		    
+			)
+		    </td> </tr> 
+		    <tr> <td> 
+                        <input type="checkbox" name="netzcore" value="netzcore" /> NetZcore
+			<!-- </td> <td> &nbsp; -->
+			&nbsp; (Iteration: 
+			<select id="iterationZelect" name="repetitionZelector" style="font-size: 80%"> 
+			    <option value="1"> 1 </option>
+			    <option value="2"> 2 </option>
+			    <option value="3"> 3 </option>
+			    <option value="4"> 4 </option>
+			    <option value="5" selected="seleceted"> 5 </option>
+			</select>	
+			)
+		    </td> <td> &nbsp;
+		    </td> </tr> 
+		    <tr> <td> 
+                        <input type="checkbox" name="netshort" value="netshort" /> NetShort
+		    </td> <td> &nbsp;
+		    </td> <td> &nbsp;
+		    </td> </tr> 
+		    </table>
+		    </fieldset>
+
+		    [ <a href="#" onClick="document.getElementById('options').style.display='none'"> Hide </a> ] 
+
+			</div>
+			</center>
+
+			<span id="messageField"> </span>
+
+			<br/>
+
+			<h3> BIANA entries in the network </h3> 
+			[ Select <a href="#" onClick="toggleAll(${user_entity_ids_in_network}, true);"> All </a> / <a href="#" onClick="toggleAll(${user_entity_ids_in_network}, false);"> None </a> ]
+			&nbsp;
+			<!-- [ <a href="${request.application_url}/data/"> Download selected </a> ] -->
+
+			<div class="text_padding">
+			<!-- <fieldset>
+			  <legend>Result Summary</legend> -->
+			    <table id="user_entity_set">
+				<tr> <th title="Entries selected in this field will be used as sources of annotation (seeds) during GUILDifying (scoring) process">Keep</th> <th title="Entrez gene identifier">Gene ID</th> <th title="UniProt accession number (KEGG id is shown instead, if no associated UniProt id is found)">UniProt ID</th> <th title="Gene symbol">Gene Symbol</th> <th title="Matching descriptions in BIANA Knowledgebase">Description</th> </tr> <!-- <th title="Unique id describing the entry assigned by BIANA">BIANA ID</th> <th title="Identifiers of equivalent entries matched by BIANA">Equivalent Entries <br/> (matched by BIANA)</th> -->
+				<tr tal:repeat="row values_in_network"> 
+				    <td tal:condition="repeat.row.odd" tal:attributes="class 'oddy'" tal:repeat="col row"> 
+					<p tal:content="structure col"> </p> 
+				    </td> 
+				    <td tal:condition="repeat.row.even" tal:attributes="class 'eveny'" tal:repeat="col row"> 
+					<p tal:content="structure col"> </p> 
+				    </td> 
+				</tr>
+			    </table>
+			    <!-- </fieldset> -->
+			</div>
+
+			<br/>
+
+				<!--
+				<label for="scoring_method">Choose scoring method:</label>
+				<select name="scoring_method">
+				    <option value="ns" selected="selected"> NetScore </option>
+				    <option value="nz"> NetZcore </option>
+				    <option value="nd"> NetShort </option>
+				    <option value="nr"> NetRank </option>
+				    <option value="ff"> Func. Flow </option>
+				</select>
+				&nbsp; and &nbsp;
+				-->
+			<!-- <input type="submit" value="GUILDify!" title="Apply network-based scoring method using selected entries"/>
+			  using selected entries [ <a href="#" onClick="document.getElementById('options').style.display='block'"> Options </a> ] -->
+
+			</form>
+
+			<h3> BIANA entries not in the network </h3> 
+			<!-- [ <a href="${request.application_url}/data/"> Download </a> ] &nbsp; -->
+			<div class="text_padding">
+			<!-- <fieldset>
+			  <legend>Result Summary</legend> -->
+			    <table id="user_entity_set">
+				<tr> <th title="Entries selected in this field will be used as sources of annotation (seeds) during GUILDifying (scoring) process">Keep</th> <th title="Entrez gene identifier">Gene ID</th> <th title="Uniprot accession number">UniProt ID</th> <th title="Gene symbol">Gene Symbol</th> <th title="Matching descriptions in BIANA Knowledgebase">Description</th> </tr> <!-- <th title="Unique id describing the entry assigned by BIANA">BIANA ID</th> <th title="Identifiers of equivalent entries matched by BIANA">Equivalent Entries <br/> (matched by BIANA)</th> -->
+				<tr tal:repeat="row values_not_in_network"> 
+				    <td tal:condition="repeat.row.odd" tal:attributes="class 'oddy'" tal:repeat="col row"> 
+					<p tal:content="structure col"> </p> 
+				    </td> 
+				    <td tal:condition="repeat.row.even" tal:attributes="class 'eveny'" tal:repeat="col row"> 
+					<p tal:content="structure col"> </p> 
+				    </td> 
+				</tr>
+			    </table>
+			    <!-- </fieldset> -->
+			</div>
+
+                        <br/>
+
+		    </div>
+		</div>
+
+		<div class="footer">
+		    <div class="padding"> <!-- Original design: <a href="http://www.free-css-templates.com/" title="Free CSS Templates">David Herreman</a> -->
+			<br />Powered by <a href="http://pylonsproject.org/"> Pyramid </a> </div>
+		</div>
+	    </div>
+	</div>
+
+</body>
+</html>
+
+

@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+	xmlns:tal="http://xml.zope.org/namespaces/tal" 
+	xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++
+| LightNEasy Content Management System
+| Copyright 2007-2008 Fernando Baptista
+| http://lightneasy.org
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| no database version 2.2
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| Released under the terms & conditions of v2 of the
+| GNU General Public License. For details refer to
+| the included gpl.txt file or visit http://gnu.org
++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<title>GUILDify: Web server for phenotypic characterization of genes </title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<meta http-equiv='Content-Language' content='en_US' />
+<meta http-equiv='Content-Script-Type' content='text/javascript' />
+<meta http-equiv='Content-Style-Type' content='text/css' />
+<meta name='keywords' content='Structural Bioinformatics GRIB IMIM UPF Biomedical Informatics' />
+<meta name='description' content='Structural Bioinformatics Group in GRIB (Research Group on Biomedical Informatics' />
+<meta name='author' content='Emre Guney' />
+<meta name='Robots' content='index,follow' />
+<meta http-equiv='imagetoolbar' content='no' /><!-- disable IE's image toolbar -->
+<link rel="stylesheet" href="${request.static_url('test2:static/style.css')}" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/JavaScript">
+    // <!--
+    function timedRefresh(timeoutPeriod) {
+	setTimeout("location.href='${request.application_url}/result/${session_id}/1/20/1';", timeoutPeriod);
+    }
+    // -->
+</script>
+</head>
+
+<body onload="JavaScript:timedRefresh(60000);">
+
+    <div class="content">
+	<div class="header">
+	</div>
+	<div class="preheader">
+	    <br />
+	    <div class="padding">
+		<br />
+	    </div>
+	</div>
+
+	    <div id="nav">
+		<ul>
+		<li><a class="selected" href="${request.application_url}">Home</a></li>
+		<li><a href="${request.application_url}/doc">Documentation</a></li>
+		<li><a href="${request.application_url}/../GUILD.php">GUILD</a></li>
+		<li><a href="${request.application_url}/../BIANA.php">BIANA</a></li>
+		<li><a href="http://sbi.imim.es">SBI Group</a></li>
+		</ul>
+	    </div>
+
+	    <div class="header">
+		<br/>
+		<div class="title"> GUILDify Web Server - Job Status </div> 
+	    </div>
+
+	    <div id="main_content" class="main_content">
+		    
+		<div class="sd_left">
+
+		    <div class="text_padding">
+
+			<br />
+
+			<b tal:condition="submitted"> Your job has been successfully submitted! </b> <b tal:condition="not submitted"> Your job is in <i> ${message} </i> state! </b> Please, see details below. 
+			<br />
+			This page is refreshed automatically every minute. [ <a href="${request.application_url}/result/${session_id}/1/20/1"> Refresh now </a> ]
+			<!-- [ <a href="${request.application_url}/result/${session_id}/1/20/1"> Refresh status </a> ] -->
+			<br />
+			<br />
+			
+			<table border=1 cellpadding=3 cellspacing=1> 
+			    <tr> 
+				<td> Job Id </td> <td> <b> ${session_id} </b> </td>
+			    </tr>
+			    <tr> 
+				<td> Status </td> <td> <b> ${message} </b> </td>
+			    </tr>
+			    <tr> 
+				<td> Species </td> <td> <b><i>${species}</i></b> </td>
+			    </tr>
+			    <tr>
+				<td> Seeds </td> <td> <a href="${request.application_url}/data/${seed_file_url}" > Download (tab delimited file) </a> </td>
+			    </tr>
+			    <tr>
+				<td> Interactome </td> <td> <a href="${request.application_url}/data/${network_file_url}" > Download (tab delimited file) </a> </td>
+			    </tr>
+			    <tr>
+				<td> Access to results </td> <td> <b> <a href="${request.application_url}/result/${session_id}/1/20/1"> ${request.application_url}/result/${session_id}/1/20/1 </a> </b> </td>
+			    </tr>
+			</table>
+
+			<br />
+			* Typically, within 30 mins you should be able to access the results via the link above. If the results are not generated within 24 hours, please contact to the <a href="mailto:emre.guney{-at-}upf.edu?Subject=GUILDify%20job%20status"> webmaster </a> using the job id above as reference.
+			<br /> 
+			<br />
+
+		    </div>
+		</div>
+
+		<div class="footer">
+		    <div class="padding"> <!-- Original design: <a href="http://www.free-css-templates.com/" title="Free CSS Templates">David Herreman</a> -->
+			<br />Powered by <a href="http://pylonsproject.org/"> Pyramid </a> </div>
+		</div>
+	    </div>
+	</div>
+
+</body>
+</html>
+
+

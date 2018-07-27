@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+	xmlns:tal="http://xml.zope.org/namespaces/tal" 
+	xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<title>GUILDify: Web server for phenotypic characterization of genes </title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<meta http-equiv='Content-Language' content='en_US' />
+<meta http-equiv='Content-Script-Type' content='text/javascript' />
+<meta http-equiv='Content-Style-Type' content='text/css' />
+<meta name='keywords' content='Structural Bioinformatics GRIB IMIM UPF Biomedical Informatics' />
+<meta name='description' content='Structural Bioinformatics Group in GRIB (Research Group on Biomedical Informatics' />
+<meta name='author' content='Emre Guney' />
+<meta name='Robots' content='index,follow' />
+<meta http-equiv='imagetoolbar' content='no' /><!-- disable IE's image toolbar -->
+<link rel="stylesheet" href="${request.static_url('test2:static/style.css')}" type="text/css" media="screen" charset="utf-8" />
+</head>
+
+<body>
+
+    <div class="content">
+	<div class="preheader">
+	    <br />
+	    <div class="padding">
+		<br />
+	    </div>
+	</div>
+
+	    <div id="nav">
+		<ul>
+		<li><a href="${request.application_url}">Home</a></li>
+		<li><a class="selected" href="${request.application_url}/doc">Documentation</a></li>
+		<li><a href="${request.application_url}/../GUILD.php">GUILD</a></li>
+		<li><a href="${request.application_url}/../BIANA.php">BIANA</a></li>
+		<li><a href="http://sbi.imim.es">SBI Group</a></li>
+		</ul>
+	    </div>
+
+	<div class="header"> 
+	    <br/>
+	    <div class="title"> GUILDify Web Server - Documentation </div> 
+	</div>
+
+	    <div id="main_content" class="main_content">
+		    
+		<div class="sd_left">
+
+		    <div class="text_padding">
+
+		    <div>
+			<ul>
+			<li><a href="#intro"> Introduction </a></li>
+			<li><a href="#overview"> Schematic Overview </a></li>
+			<li><a href="#usage"> Usage </a></li>
+			<li><a href="#faq"> Frequently Asked Questions </a></li>
+			</ul>
+		    </div>
+
+			<br />
+			<h3 id="intro"> Introduction </h3>
+
+			GUILDify is a web server for phenotypic characterization of genes through biological data integration and network-based prioritization algorithms. Towards the goal of extending our knowledge on the genetic elements underlying various phenotypes (including but not limited to disease phenotypes), we aim to use gene-phenotype associations in the literature in combination with the network-based prioritization methods. Considering the lack of convenient interfaces that bridge many of network-based prioritization algorithms to end users, we present GUILDify, an easy to use web server that assigns genes likelihood scores of involvement for a given keyword (e.g. disease phenotype, functional annotation or in broader terms any phenotypic association) using integrated data from publicly available major biological data repositories (see <a href="http://sbi.imim.es/web/BIANA.php">BIANA</a> and <a href="http://sbi.imim.es/web/GUILD.php">GUILD</a>). The databases integrated by BIANA are referred as BIANA-KB (BIANA knowledge base).
+
+			<h3 id="overview"> Schematic overview </h3> 
+
+			<br/>
+			<img src="${request.static_url('test2:static/guildify.png')}" height="75%" width="75%" />
+			<br/>
+
+			<h3 id="usage"> Usage </h3> 
+			
+			<h4> 1- Input: Provide keywords defining a phenotype </h4>
+			Any keyword (or a combination of them) describing a phenotype (i.e. disease, biological function or pathway). A user-provided list of genes can also be queried given that they are separated by semicolons (e.g., "BRCA1;BRCA2").
+			<!--incorporated in addition to the genes found in integrated databases (BIANA-KB).-->
+			<br/>
+			<br/>
+			The input form on the home page (shown with <b>A</b> in the figure below), accepts a combination of keywords. If more than one keyword is given (separated by whitespace) these keywords are tried to be matched separately. On the other hand if you want to describe a phenotype that consists of multiple keywords you should add quotation (") around those keywords (e.g. "Alzheimer's disease"). Therefore where <b> <i> "Alzheimer's disease" </i> </b> would only match entries with the occurrences of full text "Alzheimer's disease", <b> <i> Alzheimer's disease </i> </b> (without quotations) would match entries that either contain "Alzheimer's" or "disease". A search in the form of <b> <i> "Alzheimer's disease" alzheimer </i> </b> would match entries that contain either "Alzheimer's disease" (together) or "alzheimer" in the relevant fields of the biological databases integrated by BIANA. Note that, several example keywords are provided (i.e. <b>D</b> in the figure). 
+			<br/>
+			<img src="${request.static_url('test2:static/query_form.png')}" height="50%" width="50%" />
+			<br/>
+			<br/>
+			The user may choose one of the species listed in the drop box (<b>B</b> in the figure above). Currently the following species are supported: <b> <i> "Homo sapiens", "Mus musculus", "S. cerevisiae", "C. elegans", "D. melanogaster", "A. thaliana" </i> </b>. 
+			<br/>
+			<br/>
+			Once the keywords are entered and the species is selected, the user can proceed by clicking "Search in BIANA Knowledge base" button (<b>C</b> above).
+			<br/>
+			<br/>
+			<!-- Genes whose association to the your phenotype of interest are known but that are not listed by the web server can be provided using "Upload more genes" link provided on the top of the page listing the genes listed after the keyword based query above (shown in the figure below).
+			<img src="${request.static_url('test2:static/add_genes.png')}" height="50%" width="50%" />
+			<br/>
+			<br/>
+			-->
+			The user may further select which genes to include on the same page by clicking to the check boxes next to the listed entries under the <b>"Keep"</b> column (shown in the image below).
+			<br/>
+			<img src="${request.static_url('test2:static/query_result.png')}" height="50%" width="50%" />
+
+
+			<h4> 2- GUILDify </h4>
+			First, for the provided keywords, BIANA-KB is queried and the products of the genes (e.g. proteins) associated with these keywords are listed. Relevant fields in these biological data sources such as “description”, “disease”, “function” are looked for keyword matches. At this step, user may choose to use a subset of the listed genes or may provide genes that are not listed by the web server (if there is any). Next, the products of these genes are used as seeds (initial gene-phenotype annotations) and NetCombo method implemented in GUILD framework is run on a species-specific protein-protein interaction network. The resulting scores are then  listed along with the descriptive information of the gene products such as UniProt id, gene symbol, Entrez gene id and description.
+			<br/>
+			<br/>
+			GUILDify is designed to be as simple as possible. Many algorithmic details such as internal parameters used by the scoring algorithms are hidden from the user. These parameters are chosen the values that are shown to be optimum on a large data set of disease phenotypes under the context of <a href="http://sbi.imim.es/web/GUILD.php">GUILD</a> project. Users that are interested in using user-defined parameters are advised to refer to download stand-alone software provided in the aforementioned web page.
+
+			<h4> 3- Status page </h4>
+			The status page provides the links for the result page. This link is going to be available as soon as the scores are calculated by the server. "Access to results" link on this web page can be used go to the result page (when available). In case of a status message of error, please let the webmaster (Emre Guney, email:"name"."surname"@upf.edu) aware attaching relevant information (i.e.the link for the results).
+			<br/>
+
+			<h4> 4- Output: GUILD scores for association to the phenotype </h4>
+			For each gene product in publicly available databases integrated by BIANA, a likelihood score associating the gene product with the phenotype provided by the user. The likelihood score is the final column in the result table (<b>GUILD Score</b>, shown in the image below). The files containing GUILD Scores of all gene products and seed proteins used in the scoring method can be both downloaded using "Download all scores" and "Download seed proteins" links respectively. The interactome network can also be downloaded using "Download interactome" link. 
+			<br/>
+			<img src="${request.static_url('test2:static/score_result.png')}" height="50%" width="50%" />
+			<br/>
+			<br />
+			GUILDify also provides an interactive visualization panel for displaying the interactions in the highest scoring subnetwork (highest scoring 1% and 5% proteins and their interactions, see images below). 
+			If the species if Homo Sapiens, GUILDify fetches drugs from DrugBank and includes them in the visualization panel. The nodes can be selected in the visualization panel. The information for the selected nodes will be displayed at the bottom of the panel. The drugs can be filtered using the "Include drugs" checkbox. The highest scoring subnetwork and the information on drugs (if the species is Homo Sapiens) can be downloaded using "Download subnetwork" and "Download drug info" links respectively.
+			<br/>
+			<img src="${request.static_url('test2:static/drug_filter.png')}" height="50%" width="50%" />
+			<img src="${request.static_url('test2:static/visualization.png')}" height="50%" width="50%" />
+			<br/>
+			<br />
+
+			<h3 id="faq"> Frequently Asked Questions </h3> 
+			
+			<h4> 1- How does GUILDify retrieve initial phenotype-gene associations via free text search on biological databases? </h4>
+			In GUILDify, the query is tokenized into keywords and then description fields in UniProt, OMIM and GO are searched for an exact match of these keywords. Quotations can be used to specify the behavior of matching when a combination of keywords is used. For instance, the query "Alzheimer disease" is first tokenized into alzheimer and disease (case insensitive). Then only the entries for which the description field contains both Alzheimer and diseases words (not necessarily consecutive) are retrieved since they are quoted together. If the same query is made without quotations, it would retrieve the entries that have either "alzheimer" or "disease". 
+			<br/>
+			<br/>
+
+			<h4> 2- Why are some Gene Ids missing from the nodes presented in the tables and visualization section? </h4>
+			In these cases, there is no Gene Id associated with the protein product in the original source database (UniProt). That is, the protein entry in UniProt does not map to any RefSeq protein and thus it is not possible to have a Gene Id cross-reference (See <a href="http://www.uniprot.org/faq/44"> UniProt FAQ on this issue </a>).
+			<br/>
+			<br/>
+	
+			<h4> 3- How are the drugs prioritized? Are all proteins used for prioritization of drugs?</h4>
+			All proteins in the top high-scored subnetwork are used for prioritizing drugs, however most drugs have only one target (protein that is known to interact with the compound). The drugs are listed in the table, when nodes are selected in the Cytoscape-web visualization panel, and also in the downloadable tables. Drugs are ranked/scored according to the scores of their targets in the subnetwork. This also implies their association with seeds (nodes that have the highest scores), therefore the information about drugs associated with seeds come first in the table.
+			<br/>
+			<br/>
+
+			<h4> 4- In the visualization of highest scoring subnetwork, could the size of the network diagram be increased? </h4>
+			The user can increase the size of the diagram using Cytoscape web plugin's control panel. 
+			<br/>
+			<br/>
+
+		    </div>
+		</div>
+
+		<div class="footer">
+		    <div class="padding"> <!-- Original design: <a href="http://www.free-css-templates.com/" title="Free CSS Templates">David Herreman</a> -->
+			<br />Powered by <a href="http://pylonsproject.org/"> Pyramid </a> </div>
+		</div>
+	    </div>
+	</div>
+
+</body>
+</html>
+
+
